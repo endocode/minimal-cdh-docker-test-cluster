@@ -1,0 +1,3 @@
+# Packages for Cloudera's Distribution for Hadoop, Version 5.4.4, on wheezy amd64
+deb http://archive.cloudera.com/cdh5/debian/wheezy/amd64/cdh wheezy-cdh5.4.4 contrib
+deb-src http://archive.cloudera.com/cdh5/debian/wheezy/amd64/cdh wheezy-cdh5.4.4 contrib

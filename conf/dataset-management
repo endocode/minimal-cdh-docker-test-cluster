@@ -1,0 +1,13 @@
+ #!/bin/sh
+
+# set JAVA_HOVE
+export JAVA_HOME=/usr/lib/jvm/java-7-oracle-cloudera
+
+# set path to hive config dir with hive-site.xml
+HIVE_CONF_DIR=/etc/hive/conf/
+
+# set path to dataset management jar
+DATASET_MANAGEMENT_JAR=/opt/hyperlane/dataset-management-cli.jar
+
+# run application with custom classpath
+java -cp "$HIVE_CONF_DIR:$DATASET_MANAGEMENT_JAR" 'org.springframework.boot.loader.JarLauncher' $@

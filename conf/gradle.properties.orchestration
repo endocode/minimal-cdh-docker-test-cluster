@@ -1,0 +1,14 @@
+init_gradle_url=http://78.137.98.66:8081/nexus/service/local/repositories/config/content/config/init/1.1/init-1.1.gradle
+checkstyle_url=http://78.137.98.66:8081/nexus/service/local/repositories/config/content/config/checkstyle/1/checkstyle-1.xml
+nexus_snapshot_url=http://78.137.98.66:8081/nexus/content/repositories/snapshots
+nexus_release_url=http://78.137.98.66:8081/nexus/content/repositories/releases
+nexus_user=
+nexus_password=
+org.ajoberstar.grgit.auth.username=
+org.ajoberstar.grgit.auth.password=
+org.gradle.daemon=true
+sonar_host=http://192.168.59.104:9000
+sonar_jdbc_host=jdbc:mysql://192.168.59.104:3306/sonar
+sonar.jdbc.driverClassName=com.mysql.jdbc.Driver
+sonar_user=sonar
+sonar_password=
