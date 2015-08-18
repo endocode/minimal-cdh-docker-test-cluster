@@ -84,7 +84,10 @@ Fix hive permissions
 	
     hadoop fs -chmod g+w /user/hive/warehouse
 
-Run hive as hdfs user, create a table ignoring the data types (room for improvement)
+Run hive as hdfs user, create a database and a table ignoring the data types (room for improvement)
+
+    CREATE DATABASE IF NOT EXISTS test;
+    USE test;
 
     CREATE TABLE train (TRIP_ID string, CALL_TYPE string,ORIGIN_CALL string,ORIGIN_STAND string,TAXI_ID string,TIMESTAMP string ,DAY_TYPE string,MISSING_DATA string ,POLYLINE string) row format delimited fields terminated by ',' ;
 
@@ -101,7 +104,7 @@ Test table
 
       sudo -u hdfs hive -e 'use test; select count(*) from train;'
 
-returns output like this on a Carbon X1 Laptop
+returns output like this on a Carbon X1 Laptop, (close chrome if complains about lack of resources).
 
       Logging initialized using configuration in file:/etc/hive/conf.dist/hive-log4j.properties
       OK
