@@ -24,7 +24,7 @@ http://www.cloudera.com/content/cloudera/en/documentation/core/latest/topics/adm
 
 # Scaling 
 
-The network based approach of Hado op has a serious disadvantage as a factor of 15 is wasted in examples where you could keep all data in memory.
+The network based approach of Hadoop has a serious disadvantage as a factor of 15 is wasted in examples where you could keep all data in memory.
 Therefore the scaling of the set of 0.5 G to 50 G has different alternatives
 
 ## Medium data
@@ -42,3 +42,24 @@ The discussion became political between Hortonworks Spark and if Tez or Spark of
 
 # Scaling to the limit
 
+Optimization can be applied to system engineering, the components of the distribution, the configuration and the scripts running on the cluster.
+
+# System engineering
+
+The scaling on the system engineering side includes 
+
+more resources in the following order
+- RAM
+- CPUs per machine
+- disks, maybe use SSDs
+- bandwidth
+- [optimize the JVM](https://software.intel.com/en-us/articles/hadoop-and-hbase-optimization-for-read-intensive-search-applications)
+
+## Further Optimization
+
+- see above: Pig, Tez, Orc
+- Hive vectorization,  cost based query optimization
+- use Hive analytical capabilities
+- more [Hive instances load balanced](http://oobaloo.co.uk/multiple-connections-with-hive)
+- write good SQL
+- optimization of  text search with [elasticsearch for hadoop](https://www.elastic.co/blog/elasticseach-hadoop-certified-cloudera-cdh5) using [range aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html)
