@@ -34,9 +34,9 @@ Get docker image
 
     docker build .
 
-The command returns an `<image id>`. Tag the image with a visible name
+The command returns an `<image id>` (or run `docker images` to get the id). Tag the image with a visible name
 
-    docker tag cdh/5.4.4 <image id>
+    docker tag <image id> cdh/5.4.4
 
 
 We will run a master node cdh-node1 and one or more slave nodes cdh-node2, cdh-node3
