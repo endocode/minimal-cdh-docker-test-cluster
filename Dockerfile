@@ -38,7 +38,6 @@ COPY conf/hadoop-env.sh /etc/hadoop/conf/hadoop-env.sh
 COPY conf/yarn-site.xml /etc/hadoop/conf/yarn-site.xml
 COPY conf/hive-site.xml /etc/hive/conf/hive-site.xml
 COPY conf/hue.ini /etc/hue/conf/hue.ini
-COPY conf/hosts	/etc/hosts
 
 #Format HDFS
 RUN sudo -u hdfs hdfs namenode -format
