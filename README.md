@@ -11,7 +11,7 @@ This is a rewrite of [Chalis pseudo distributed cluster docker image](https://gi
 * Install hive
 * Install hue
 
-The way of running services looks not optimal, but has not been changed. 
+The way of running services looks not optimal, but has not been changed.
 
 #####Installed services
 * HDFS
@@ -32,80 +32,98 @@ This can  be very slooooow in the office.
 
 Get docker image
 
-    docker build .
-
-The command returns an `<image id>` (or run `docker images` to get the id). Tag the image with a visible name
-
-    docker tag <image id> cdh/5.4.4
-
+```sh
+    docker build -t endocode/cdh_5.4.4 .
+```
 
 We will run a master node cdh-node1 and one or more slave nodes cdh-node2, cdh-node3
 
 Run image with specified port `-p` and volume `-v` mappings, run the master cdh-node1
 
-    docker run --name cdh-node1 -h cdh-node1 -d -p 8020:8020 -p 50070:50070 -p 50010:50010 -p 50020:50020 -p 50075:50075 -p 8030:8030 -p 8031:8031 -p 8032:8032 -p 8033:8033 -p 8088:8088 -p 8040:8040 -p 8042:8042 -p 10020:10020 -p 19888:19888 -p 11000:11000 -p 8888:8888 cdh/5.4.4
-    
-    docker run --name cdh-node2 -h cdh-node2
-    docker run --name cdh-node3 -h cdh-node3
-   
+```sh
+    docker run --dns=$(ip addr show dev docker0 | awk -F'[/ ]' '/inet / {print $6}') --name cdh-node1 -h cdh-node1 -d -p 8020:8020 -p 50070:50070 -p 50010:50010 -p 50020:50020 -p 50075:50075 -p 8030:8030 -p 8031:8031 -p 8032:8032 -p 8033:8033 -p 8088:8088 -p 8040:8040 -p 8042:8042 -p 10020:10020 -p 19888:19888 -p 11000:11000 -p 8888:8888 endocode/cdh_5.4.4
+    docker run --dns=$(ip addr show dev docker0 | awk -F'[/ ]' '/inet / {print $6}') --name cdh-node2 -h cdh-node2 -d --link=cdh-node1:cdh-node1 endocode/cdh_5.4.4
+    docker run --dns=$(ip addr show dev docker0 | awk -F'[/ ]' '/inet / {print $6}') --name cdh-node3 -h cdh-node3 -d --link=cdh-node1:cdh-node1 endocode/cdh_5.4.4
+    ./dnsmasq/run_dnsmasq.sh
+```
 
 The first time you run this command it is slow, because inside the container all necessary maven artefacts are downloaded in the `/root/.gradle` directory. With
 
+```sh
     docker exec -t -i cdh-node1 /bin/bash
+```
 
 you can enter the container for debugging. Make sure to set the term variable when you are using the bash shell inside a container:
 
-    export TERM=vt100
+Check if your slave Hadoop nodes are connected to master node:
 
-*Etc hosts needs to be adapted manually*
+```sh
+root@cdh-node2:/# sudo -u hdfs hdfs dfsadmin -report | grep Hostname
+```
 
+Or by opening this URL on your laptop: http://localhost:50070/dfshealth.html#tab-datanode
 
-    172.17.0.7	cdh-node1
-    172.17.0.8      cdh-node2
-    172.17.0.9      cdh-node3
-    
-    127.0.0.1	localhost
-    ::1	localhost ip6-localhost ip6-loopback
-    fe00::0	ip6-localnet
-    ff00::0	ip6-mcastprefix
-    ff02::1	ip6-allnodes
+You can also review datanode log files:
+
+```
+root@cdh-node2:/# tail -f /var/log/hadoop-hdfs/hadoop-hdfs-datanode-`hostname`.log
+```
 
 This requires a recent docker version, see the [Docker cli reference](https://docs.docker.com/reference/commandline/cli)
 
 I use docker 1.6 on kernel 4.2.
 
 Download test data to the /tmp directory
-    
+
+```sh
     cd /tmp
     wget http://archive.ics.uci.edu/ml/machine-learning-databases/00339/train.csv.zip
     unzip train.csv.zip
-    
-Fix hive permissions
-	
-    hadoop fs -chmod g+w /user/hive/warehouse
+```
 
-Run hive as hdfs user, create a database and a table ignoring the data types (room for improvement)
+Fix hive permissions if necessary
 
+```sh
+    sudo -u hdfs hdfs dfs -chmod -R g+w /user/hive/warehouse
+```
+
+Run hive as hdfs user:
+
+```sh
+sudo -u hdfs hive
+```
+
+Create a database and a table ignoring the data types (room for improvement)
+
+```
     CREATE DATABASE IF NOT EXISTS test;
     USE test;
 
     CREATE TABLE train (TRIP_ID string, CALL_TYPE string,ORIGIN_CALL string,ORIGIN_STAND string,TAXI_ID string,TIMESTAMP string ,DAY_TYPE string,MISSING_DATA string ,POLYLINE string) row format delimited fields terminated by ',' ;
+```
 
 and import data
-	
+
+```
       LOAD DATA LOCAL INPATH '/tmp/train.csv' OVERWRITE INTO TABLE train;
+```
 
 Install cloudera odbc driver
 
+```
       wget https://downloads.cloudera.com/connectors/hive_odbc_2.5.16.1005/Debian/clouderahiveodbc_2.5.16.1005-2_amd64.deb
       dpkg -i clouderahiveodbc_2.5.16.1005-2_amd64.deb
+```
 
 Test table
 
+```
       sudo -u hdfs hive -e 'use test; select count(*) from train;'
+```
 
 returns output like this on a Carbon X1 Laptop, (close chrome if complains about lack of resources).
 
+```
       Logging initialized using configuration in file:/etc/hive/conf.dist/hive-log4j.properties
       OK
       Time taken: 0.419 seconds
@@ -133,11 +151,12 @@ returns output like this on a Carbon X1 Laptop, (close chrome if complains about
       2015-08-17 16:16:40,272 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 26.77 sec
       MapReduce Total cumulative CPU time: 26 seconds 770 msec
       Ended Job = job_1439826105194_0003
-      MapReduce Jobs Launched: 
+      MapReduce Jobs Launched:
       Stage-Stage-1: Map: 8  Reduce: 1   Cumulative CPU: 26.77 sec   HDFS Read: 1942946863 HDFS Write: 8 SUCCESS
       Total MapReduce CPU Time Spent: 26 seconds 770 msec
       OK
       1710671
       Time taken: 34.103 seconds, Fetched: 1 row(s)
+```
 
 	
